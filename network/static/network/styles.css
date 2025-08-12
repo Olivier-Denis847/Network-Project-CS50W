@@ -1,0 +1,15 @@
+#create_post {
+    width: 90%;
+    margin: auto;
+    padding: 15px;
+    border: 1px solid black;
+}
+#content {
+    width: 100%;
+}
+.post {
+    border-bottom: 1px solid darkgray;
+    margin-left: 2%;
+    margin-right: 2%;
+    padding: 15px;
+}

@@ -1,0 +1,27 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+    <div id = "create_post">
+    {% else %}
+    <div id="create_post" style="display: none;">
+    {% endif %}
+        <h2>New post</h2>
+        <form>
+            {% csrf_token %}
+            <textarea id="content"></textarea>
+            <br>
+            <input type="submit">
+        </form>
+    </div>
+    <div id = "post_list">
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>    
+    var CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}

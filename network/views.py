@@ -1,0 +1,110 @@
+import json
+from django.contrib.auth import authenticate, login, logout
+from django.db import IntegrityError
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+from django.urls import reverse
+from django.utils import timezone, dateformat
+
+from .models import User, Post
+
+
+def index(request):
+    return render(request, "network/index.html")
+
+def profile(request, id):
+    if request.method != 'GET' and request.method != 'POST':
+        return
+    #TODO implement post request logic
+
+    #GET request
+    user = User.objects.get(id = id)
+    return render(request, 'network/profile.html', {user :user})
+
+
+def create_post(request):
+    #Api route 
+
+    if request.method != 'POST':
+        return JsonResponse({'error' : 'Only POST methods are supported'}, status = 400)
+    
+    data = json.loads(request.body)
+    if len(data['content']) == 0:
+        return JsonResponse({'error' : 'Post body cannot be empty'}, status = 400)
+
+    new_post = Post(content = data['content'], creator = request.user, posted = timezone.now())
+    new_post.save()
+    return JsonResponse({'message' : 'post created sucessfully'}, status = 201)
+
+def list_posts(request, follows = False):
+    #Api route
+
+    if request.method != 'GET':
+        return JsonResponse({'error' : 'Only GET methods are supported'}, status = 400)
+
+    posts = Post.objects.all().order_by('-id')
+    if len(posts) == 0:
+        return []
+    
+    items = []
+    for post in posts:
+        formatted_date = dateformat.format(post.posted, 'Y-m-d H:i')
+        summary = {
+            'creator' : post.creator.username,
+            'content' : post.content,
+            'posted' : formatted_date,
+            'likes' : post.likes.count()
+        }
+        items.append(summary)
+    return JsonResponse(items, safe=False)
+
+def login_view(request):
+    if request.method == "POST":
+
+        # Attempt to sign user in
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "network/login.html", {
+                "message": "Invalid username and/or password."
+            })
+    else:
+        return render(request, "network/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("index"))
+
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+
+        # Ensure password matches confirmation
+        password = request.POST["password"]
+        confirmation = request.POST["confirmation"]
+        if password != confirmation:
+            return render(request, "network/register.html", {
+                "message": "Passwords must match."
+            })
+
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.save()
+        except IntegrityError:
+            return render(request, "network/register.html", {
+                "message": "Username already taken."
+            })
+        login(request, user)
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "network/register.html")
