@@ -1,0 +1,31 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div id = "user">
+    <h2>{{to_view.username}}</h2>
+    <p>Followers: <strong>{{followers}}</strong>  Following: <storng>{{following}}</storng></p>
+    {% if user.is_authenticated and not self %}
+        {% if follows %}
+            <button id = 'un_follow'>un-follow</button>
+        {% else %}
+            <button id = 'follow'>follow</button>
+        {% endif %}
+    {% endif %}
+</div>
+<hr>
+<div id = "post_list">
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    const src = "profile";      
+</script>
+<script type="module">
+    import {view_posts} from "{% static 'network/index.js' %}";
+    document.addEventListener('DOMContentLoaded', () => {
+        view_posts(user = '{{to_view.id}}');
+    })
+</script>
+{% endblock %}

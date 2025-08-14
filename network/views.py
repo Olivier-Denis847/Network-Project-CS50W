@@ -13,13 +13,16 @@ def index(request):
     return render(request, "network/index.html")
 
 def profile(request, id):
-    if request.method != 'GET' and request.method != 'POST':
+    if request.method != 'GET' and request.method != 'PUT':
         return
-    #TODO implement post request logic
+    #TODO implement put request logic
 
     #GET request
     user = User.objects.get(id = id)
-    return render(request, 'network/profile.html', {user :user})
+    follows = (request.user in user.followers.all())
+    return render(request, 'network/profile.html', {
+        'to_view' : user, 'followers' : user.followers.count(), 'following' : user.following.count(),
+        'self' : request.user == user, 'follows' : follows})
 
 
 def create_post(request):
@@ -36,15 +39,21 @@ def create_post(request):
     new_post.save()
     return JsonResponse({'message' : 'post created sucessfully'}, status = 201)
 
-def list_posts(request, follows = False):
+def list_posts(request):
     #Api route
-
     if request.method != 'GET':
         return JsonResponse({'error' : 'Only GET methods are supported'}, status = 400)
+    user = request.GET.get('user', 'null')
+    follows = request.GET.get('follows', 'false')
 
-    posts = Post.objects.all().order_by('-id')
-    if len(posts) == 0:
-        return []
+    if user == 'null':
+        posts = Post.objects.all().order_by('-id')
+    elif follows == 'false':
+        sender = User.objects.get(id = user)
+        posts = Post.objects.filter(creator = sender).all().order_by('-id')
+    else:
+        users = User.objects.get(id = user).following.all()
+        posts = Post.objects.filter(creator__in=users).all().order_by('-id')
     
     items = []
     for post in posts:
@@ -53,7 +62,8 @@ def list_posts(request, follows = False):
             'creator' : post.creator.username,
             'content' : post.content,
             'posted' : formatted_date,
-            'likes' : post.likes.count()
+            'likes' : post.likes.count(), 
+            'id' : post.creator.id
         }
         items.append(summary)
     return JsonResponse(items, safe=False)

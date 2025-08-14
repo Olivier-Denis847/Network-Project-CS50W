@@ -7,9 +7,14 @@
 #content {
     width: 100%;
 }
+#user {
+    width: 95%;
+    margin: auto;
+}
 .post {
-    border-bottom: 1px solid darkgray;
+    border-bottom: 2px solid darkgray;
     margin-left: 2%;
     margin-right: 2%;
     padding: 15px;
+    background-color: rgb(205, 218, 200);
 }
