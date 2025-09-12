@@ -12,17 +12,36 @@ from .models import User, Post
 def index(request):
     return render(request, "network/index.html")
 
-def profile(request, id):
-    if request.method != 'GET' and request.method != 'PUT':
-        return
-    #TODO implement put request logic
+def following(request):
+    return render(request, "network/following.html", {'user_id': request.user.id})
 
-    #GET request
+def profile(request, id):
+    if request.method != 'GET':
+        return
+
     user = User.objects.get(id = id)
-    follows = (request.user in user.followers.all())
     return render(request, 'network/profile.html', {
         'to_view' : user, 'followers' : user.followers.count(), 'following' : user.following.count(),
-        'self' : request.user == user, 'follows' : follows})
+        'self' : request.user == user, 'follows' : (request.user in user.followers.all())})
+
+def add_follow(request, id):
+    #Api route
+
+    if request.method != 'PUT':
+        return JsonResponse({'error' : 'Only PUT methods are supported'}, status = 400)
+    
+    data = json.loads(request.body)
+    follows = data.get('follows')
+    to_follow = User.objects.get(id = id)
+
+    if follows == 'False':
+        request.user.following.add(to_follow)
+    elif follows == 'True':
+        request.user.following.remove(to_follow)
+    else:
+        return JsonResponse({'error' : 'Bad request'}, status = 400)
+    
+    return JsonResponse({'message' : 'followed/unfollowed sucessfully'}, status = 201)
 
 
 def create_post(request):

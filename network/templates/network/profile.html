@@ -5,13 +5,15 @@
 <div id = "user">
     <h2>{{to_view.username}}</h2>
     <p>Followers: <strong>{{followers}}</strong>  Following: <storng>{{following}}</storng></p>
-    {% if user.is_authenticated and not self %}
-        {% if follows %}
-            <button id = 'un_follow'>un-follow</button>
-        {% else %}
-            <button id = 'follow'>follow</button>
+    <div id = 'follow_button'>
+        {% if user.is_authenticated and not self %}
+            {% if follows %}
+                <button id = 'un_follow'>un-follow</button>
+            {% else %}
+                <button id = 'follow'>follow</button>
+            {% endif %}
         {% endif %}
-    {% endif %}
+    </div>
 </div>
 <hr>
 <div id = "post_list">
@@ -20,12 +22,32 @@
 
 {% block script %}
 <script>
-    const src = "profile";      
+    const src = "profile";
+    const user_id = '{{ to_view.id }}';
+    const follows = '{{ follows }}';
+    const CSRF_TOKEN = '{{ csrf_token }}';            
 </script>
 <script type="module">
-    import {view_posts} from "{% static 'network/index.js' %}";
+    import {view_posts} from "/static/network/index.js";
     document.addEventListener('DOMContentLoaded', () => {
-        view_posts(user = '{{to_view.id}}');
+        view_posts(user_id);
+        document.querySelector('#follow_button').addEventListener('click', () => {
+            fetch(`/add_follow/${user_id}`, {
+                method : 'PUT',
+                body : JSON.stringify({follows : follows}),
+                headers : {
+                    'X-CSRFToken': CSRF_TOKEN,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(reply => {
+                console.log(reply.status);
+                
+                location.reload();
+            });
+        })
+        
     })
 </script>
 {% endblock %}

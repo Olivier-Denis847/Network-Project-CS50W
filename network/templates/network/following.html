@@ -1,0 +1,18 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div id = "post_list"></div>
+{% endblock %}
+
+{% block script %}
+<script>
+    const src = "following";
+</script>
+<script type="module">
+    import {view_posts} from "/static/network/index.js";
+    document.addEventListener('DOMContentLoaded', () => {
+        view_posts('{{user_id}}', 'true');
+    })
+</script>
+{% endblock %}

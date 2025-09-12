@@ -21,7 +21,7 @@
 
 {% block script %}
     <script>    
-    var CSRF_TOKEN = '{{ csrf_token }}';
+    const CSRF_TOKEN = '{{ csrf_token }}';
     const src = "index";
     </script>
     <script type = "module" src="{% static 'network/index.js' %}"></script>
