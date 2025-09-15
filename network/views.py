@@ -43,6 +43,22 @@ def add_follow(request, id):
     
     return JsonResponse({'message' : 'followed/unfollowed sucessfully'}, status = 201)
 
+def add_like(request):
+    #Api route
+
+    if request.method != 'PUT':
+        return JsonResponse({'error' : 'Only PUT methods are supported'}, status = 400)
+    
+    data = json.loads(request.body)
+    post = Post.objects.get(id = data.get('post_id'))
+    liked = post.likes.filter(id = request.user.id).exists()
+
+    if liked:
+        post.likes.remove(request.user)
+        return JsonResponse({'message' : 'removed like sucessfully'}, status = 201)
+    post.likes.add(request.user)
+    return JsonResponse({'message' : 'added like sucessfully'}, status = 201)
+
 
 def create_post(request):
     #Api route 
@@ -82,7 +98,8 @@ def list_posts(request):
             'content' : post.content,
             'posted' : formatted_date,
             'likes' : post.likes.count(), 
-            'id' : post.creator.id
+            'creator_id' : post.creator.id,
+            'post_id' : post.id,
         }
         items.append(summary)
     return JsonResponse(items, safe=False)

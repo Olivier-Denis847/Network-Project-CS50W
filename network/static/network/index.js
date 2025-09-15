@@ -9,12 +9,28 @@ export function view_posts(user = null, follows = false){
             element.classList.add('post')
  
             let name_header = `<h3>${post.creator}</h3>`;
-            if (src == 'index'){name_header = `<a href = "/profile/${post.id}">${name_header}</a>`;}
+            if (src == 'index'){name_header = `<a href = "/profile/${post.creator_id}">${name_header}</a>`;}
+            
             element.innerHTML = `
             ${name_header}
             <p style="font-weight: lighter;">${post.posted}</p>
             <p>${post.content}</p>
-            <p id = "likes">${post.likes}</p>`;
+            <div id = "like${post.post_id}">${post.likes}</div>`;
+            element.querySelector(`#like${post.post_id}`).addEventListener('click', () => {
+                fetch(`/add_like`, {
+                    method : 'PUT',
+                    body : JSON.stringify({post_id : post.post_id}),
+                    headers : {
+                        'X-CSRFToken': CSRF_TOKEN,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result);
+                    element.querySelector(`#like${post.post_id}`).innerHTML = `${post.likes + 1}`;
+                });
+            });
             document.querySelector('#post_list').append(element);
         });
     });
