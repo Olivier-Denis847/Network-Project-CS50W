@@ -51,7 +51,7 @@ def add_like(request):
     
     data = json.loads(request.body)
     post = Post.objects.get(id = data.get('post_id'))
-    liked = post.likes.filter(id = request.user.id).exists()
+    liked = data.get('is_liked')
 
     if liked:
         post.likes.remove(request.user)
@@ -100,6 +100,7 @@ def list_posts(request):
             'likes' : post.likes.count(), 
             'creator_id' : post.creator.id,
             'post_id' : post.id,
+            'is_liked' : post.likes.filter(id = request.user.id).exists()
         }
         items.append(summary)
     return JsonResponse(items, safe=False)
