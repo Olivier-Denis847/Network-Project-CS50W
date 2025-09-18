@@ -59,6 +59,24 @@ def add_like(request):
     post.likes.add(request.user)
     return JsonResponse({'message' : 'added like sucessfully'}, status = 201)
 
+def edit_post(request):
+    #Api route 
+
+    if request.method != 'PUT':
+        return JsonResponse({'error' : 'Only PUT methods are supported'}, status = 400)
+    
+    data = json.loads(request.body)
+    body = data.get('content')
+    if len(body) == 0:
+        return JsonResponse({'error' : 'Post body cannot be empty'}, status = 400)
+
+    post = Post.objects.get(id = data.get('post_id'))
+    if post.creator != request.user:
+        return JsonResponse({'error' : 'You can only edit posts you own'}, status = 401)
+
+    post.content = body
+    post.save()
+    return JsonResponse({'message' : 'post edited sucessfully'}, status = 201)
 
 def create_post(request):
     #Api route 
@@ -100,7 +118,8 @@ def list_posts(request):
             'likes' : post.likes.count(), 
             'creator_id' : post.creator.id,
             'post_id' : post.id,
-            'is_liked' : post.likes.filter(id = request.user.id).exists()
+            'is_liked' : post.likes.filter(id = request.user.id).exists(),
+            'is_owner' : post.creator.id == request.user.id
         }
         items.append(summary)
     return JsonResponse(items, safe=False)

@@ -17,20 +17,60 @@ export function view_posts(user = null, follows = false){
             if (post.is_liked){
                 like_type = 'dislike';
             };
+            if (post.is_owner){
+                name_header += '<span><button class="edit_button">Edit</button></span>';
+            }
+            var edit_block = `<div class="edit_block" style="display:none;">
+                <textarea rows="4" cols="50"></textarea>
+                <button class="save_button">Save</button>
+                </div>`;
+            var view_block = `<div class="view_block style="display:block;">${name_header}
+                <p style="font-weight: lighter;">${post.posted}</p>
+                <p>${post.content}</p>
+                <div class = "like_button ${like_type}"><img src="/static/images/heart.svg">
+                <span>${post.likes}</span></div>`;
 
-            element.innerHTML = `${name_header}
-            <p style="font-weight: lighter;">${post.posted}</p>
-            <p>${post.content}</p>
-            <div class = "like_button ${like_type}"><img src="static/images/heart.svg">
-            <span>${post.likes}</span></div>`;
+            element.innerHTML = edit_block + view_block;
 
-            element.querySelector('.like_button').addEventListener('click', () => like_button(element, post));
+            element.querySelector('.like_button').addEventListener('click', () => like_button_event(element, post));
+            if (post.is_owner){
+                element.querySelector('.edit_button').addEventListener('click', () => edit_button_event(element, post));
+            }
             document.querySelector('#post_list').append(element);
         });
     });
 }
 
-export function like_button(element, post){
+export function edit_button_event(element, post){
+    element.querySelector('.view_block').style.display = 'none';
+    var edit_block = element.querySelector('.edit_block');
+    edit_block.style.display = 'block';
+    edit_block.querySelector('textarea').value = post.content;
+
+    edit_block.querySelector('.save_button').addEventListener('click', () => {
+        const new_content = String(edit_block.querySelector('textarea').value);
+        fetch(`/edit_post`, {
+            method : 'PUT',
+            body : JSON.stringify({post_id : post.post_id, content : new_content}),
+            headers : {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            alert('got to middle');
+            response.json()
+        })
+        .then(result => {
+            console.log(result);
+            post.content = new_content;
+            element.querySelector('.view_block').style.display = 'block';
+            edit_block.style.display = 'none';
+        });
+    });
+}
+
+export function like_button_event(element, post){
     fetch(`/add_like`, {
         method : 'PUT',
         body : JSON.stringify({post_id : post.post_id, is_liked : post.is_liked}),
