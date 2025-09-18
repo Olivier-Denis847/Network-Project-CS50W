@@ -18,3 +18,12 @@
     padding: 15px;
     background-color: rgb(205, 218, 200);
 }
+.like_button img{
+    width: 30px;
+}
+.dislike img{
+    filter: invert(64%) sepia(90%) saturate(6245%) hue-rotate(338deg) brightness(103%) contrast(102%);
+}
+.like img{
+    filter: invert(80%) sepia(4%) saturate(450%) hue-rotate(201deg) brightness(84%) contrast(89%);
+}
