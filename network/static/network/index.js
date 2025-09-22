@@ -10,7 +10,7 @@ export function view_posts(user = null, follows = false){
             element.id = `post_${post.post_id}`;
  
             let name_header = `<h3>${post.creator}</h3>`;
-            if (src == 'index'){
+            if (src != 'profile'){
                 name_header = `<a href = "/profile/${post.creator_id}">${name_header}</a>`;
             };
             let like_type = `like`;
@@ -26,7 +26,7 @@ export function view_posts(user = null, follows = false){
                 </div>`;
             var view_block = `<div class="view_block style="display:block;">${name_header}
                 <p style="font-weight: lighter;">${post.posted}</p>
-                <p>${post.content}</p>
+                <p class = "content">${post.content}</p>
                 <div class = "like_button ${like_type}"><img src="/static/images/heart.svg">
                 <span>${post.likes}</span></div>`;
 
@@ -43,7 +43,7 @@ export function view_posts(user = null, follows = false){
 
 export function edit_button_event(element, post){
     element.querySelector('.view_block').style.display = 'none';
-    var edit_block = element.querySelector('.edit_block');
+    let edit_block = element.querySelector('.edit_block');
     edit_block.style.display = 'block';
     edit_block.querySelector('textarea').value = post.content;
 
@@ -58,12 +58,11 @@ export function edit_button_event(element, post){
             }
         })
         .then(response => {
-            alert('got to middle');
             response.json()
         })
         .then(result => {
             console.log(result);
-            post.content = new_content;
+            element.querySelector('.content').innerHTML = new_content;
             element.querySelector('.view_block').style.display = 'block';
             edit_block.style.display = 'none';
         });
