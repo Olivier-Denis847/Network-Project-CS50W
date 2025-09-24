@@ -1,19 +1,11 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
-{% block body %}
-<div id = "post_list"></div>
-{% endblock %}
-
 {% block script %}
 <script>
     const src = "following";
     const CSRF_TOKEN = '{{ csrf_token }}';
+    const user_id = '{{ user.id }}';
 </script>
-<script type="module">
-    import {view_posts} from "/static/network/index.js";
-    document.addEventListener('DOMContentLoaded', () => {
-        view_posts('{{user_id}}', 'true');
-    })
-</script>
+<script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

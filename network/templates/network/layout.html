@@ -46,6 +46,24 @@
         <div class="body">
             {% block body %}
             {% endblock %}
+            <div id="post_display">
+            <nav aria-label="Page select">
+            <ul class="pagination">
+                <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+                </li>
+            </ul>
+            </nav>
+            <div id = "post_list"></div>
+            </div>
         </div>
     </body>
 </html>

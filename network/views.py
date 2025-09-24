@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone, dateformat
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import User, Post
 
 
@@ -98,6 +98,7 @@ def list_posts(request):
         return JsonResponse({'error' : 'Only GET methods are supported'}, status = 400)
     user = request.GET.get('user', 'null')
     follows = request.GET.get('follows', 'false')
+    page_num = request.GET.get('page', 1)
 
     if user == 'null':
         posts = Post.objects.all().order_by('-id')
@@ -108,8 +109,16 @@ def list_posts(request):
         users = User.objects.get(id = user).following.all()
         posts = Post.objects.filter(creator__in=users).all().order_by('-id')
     
+    paginator_obj = Paginator(posts, 10)
+    try:
+        page = paginator_obj.page(page_num)
+    except PageNotAnInteger:
+        page = paginator_obj.page(1)
+    except EmptyPage:
+        page = paginator_obj.page(paginator_obj.num_pages)
+
     items = []
-    for post in posts:
+    for post in page.object_list:
         formatted_date = dateformat.format(post.posted, 'Y-m-d H:i')
         summary = {
             'creator' : post.creator.username,
@@ -122,7 +131,12 @@ def list_posts(request):
             'is_owner' : post.creator.id == request.user.id
         }
         items.append(summary)
-    return JsonResponse(items, safe=False)
+
+    return JsonResponse({
+        "current_page": page.number,
+        "has_next": page.has_next(),
+        "has_previous": page.has_previous(),
+        "results": items}, safe=False)
 
 def login_view(request):
     if request.method == "POST":

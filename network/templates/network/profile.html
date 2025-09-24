@@ -16,8 +16,6 @@
     </div>
 </div>
 <hr>
-<div id = "post_list">
-</div>
 {% endblock %}
 
 {% block script %}
@@ -27,27 +25,5 @@
     const follows = '{{ follows }}';
     const CSRF_TOKEN = '{{ csrf_token }}';            
 </script>
-<script type="module">
-    import {view_posts} from "/static/network/index.js";
-    document.addEventListener('DOMContentLoaded', () => {
-        view_posts(user_id);
-        document.querySelector('#follow_button').addEventListener('click', () => {
-            fetch(`/add_follow/${user_id}`, {
-                method : 'PUT',
-                body : JSON.stringify({follows : follows}),
-                headers : {
-                    'X-CSRFToken': CSRF_TOKEN,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(reply => {
-                console.log(reply.status);
-                
-                location.reload();
-            });
-        })
-        
-    })
-</script>
+<script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

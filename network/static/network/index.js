@@ -1,10 +1,10 @@
-export function view_posts(user = null, follows = false){
+export function view_posts(user = null, follows = false, page_num = 1){
     document.querySelector('#post_list').innerHTML = '';
 
     fetch(`/list?user=${user}&follows=${follows}`)
     .then(response => response.json())
     .then(data => {
-        data.forEach(post => {
+        data.results.forEach(post => {
             const element = document.createElement('div');
             element.classList.add('post');
             element.id = `post_${post.post_id}`;
@@ -98,31 +98,58 @@ export function like_button_event(element, post){
     });
 }
 
-if (src == 'index'){
+document.addEventListener('DOMContentLoaded', () => {
 
-    document.addEventListener('DOMContentLoaded', () => {
-        view_posts();
+    if (src == 'index')
+        indexStarter();
+    else if (src == 'following')
+        view_posts(user_id, 'true');
+    else if (src == 'profile')
+        profileStarter();
+   
+})
 
-        document.querySelector('#create_post').addEventListener('submit', () =>{
-            event.preventDefault();
-            const content = document.querySelector('#content').value; 
-
-            fetch('/create', {
-                method : 'POST',
-                body : JSON.stringify({content : content}),
-                headers : {
-                    'X-CSRFToken': CSRF_TOKEN,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(reply => {
-                console.log(reply.status);
-                document.querySelector('#content').value = '';
-
-                view_posts();
-            });
+function profileStarter(){
+    view_posts(user_id);
+    document.querySelector('#follow_button').addEventListener('click', () => {
+        fetch(`/add_follow/${user_id}`, {
+            method : 'PUT',
+            body : JSON.stringify({follows : follows}),
+            headers : {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json'
+            }
         })
+        .then(response => response.json())
+        .then(reply => {
+            console.log(reply.status);
+            
+            location.reload();
+        });
+    });
+};
 
-    })
+function indexStarter(){
+    view_posts();
+
+    document.querySelector('#create_post').addEventListener('submit', () =>{
+        event.preventDefault();
+        const content = document.querySelector('#content').value; 
+
+        fetch('/create', {
+            method : 'POST',
+            body : JSON.stringify({content : content}),
+            headers : {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(reply => {
+            console.log(reply.status);
+            document.querySelector('#content').value = '';
+
+            view_posts();
+        });
+    });
 }
