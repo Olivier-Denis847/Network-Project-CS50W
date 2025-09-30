@@ -23,7 +23,8 @@
     const src = "profile";
     const user_id = '{{ to_view.id }}';
     const follows = '{{ follows }}';
-    const CSRF_TOKEN = '{{ csrf_token }}';            
+    const CSRF_TOKEN = '{{ csrf_token }}';
+    const display_follow = false;            
 </script>
 <script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

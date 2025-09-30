@@ -12,7 +12,7 @@
             {% csrf_token %}
             <textarea id="content"></textarea>
             <br>
-            <input type="submit">
+            <input type="submit" value="Post" id="post_button">
         </form>
     </div>
 {% endblock %}
@@ -21,6 +21,8 @@
     <script>    
     const CSRF_TOKEN = '{{ csrf_token }}';
     const src = "index";
+    const user_id = 'null';
+    const display_follow = false;
     </script>
     <script type = "module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

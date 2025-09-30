@@ -1,9 +1,21 @@
 export function view_posts(user = null, follows = false, page_num = 1){
     document.querySelector('#post_list').innerHTML = '';
 
-    fetch(`/list?user=${user}&follows=${follows}`)
+    fetch(`/list?user=${user}&follows=${follows}&page=${page_num}`)
     .then(response => response.json())
     .then(data => {
+        if (!data.has_next && !data.has_previous){
+            document.querySelector('.pagination').style.display = 'none';
+        }
+        else{
+            document.querySelector('#next-page').style.display = 'none';
+            document.querySelector('#previous-page').style.display = 'none';
+            if (data.has_next)
+                document.querySelector('#next-page').style.display = 'block';
+            if (data.has_previous)
+                document.querySelector('#previous-page').style.display = 'block';
+        }
+        
         data.results.forEach(post => {
             const element = document.createElement('div');
             element.classList.add('post');
@@ -100,6 +112,8 @@ export function like_button_event(element, post){
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.querySelector('#next-page').addEventListener('click', () => changePage(true, user_id, display_follow));
+    document.querySelector('#previous-page').addEventListener('click', () => changePage(false, user_id, display_follow));
     if (src == 'index')
         indexStarter();
     else if (src == 'following')
@@ -108,6 +122,17 @@ document.addEventListener('DOMContentLoaded', () => {
         profileStarter();
    
 })
+
+function changePage(next_page, user_id, follows){
+    let page_num = parseInt(document.querySelector('#page-num').innerHTML);
+    if (next_page)
+        page_num += 1;
+    else
+        page_num -= 1;
+    
+    document.querySelector('#page-num').innerHTML = page_num;
+    view_posts(user_id, follows, page_num);
+};
 
 function profileStarter(){
     view_posts(user_id);
@@ -149,6 +174,7 @@ function indexStarter(){
             console.log(reply.status);
             document.querySelector('#content').value = '';
 
+            document.querySelector('#page-num').innerHTML = 1;
             view_posts();
         });
     });
