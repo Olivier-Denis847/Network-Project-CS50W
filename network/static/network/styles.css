@@ -45,3 +45,10 @@
 .like img{
     filter: invert(80%) sepia(4%) saturate(450%) hue-rotate(201deg) brightness(84%) contrast(89%);
 }
+.edit_button {
+    float: right;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}

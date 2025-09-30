@@ -4,7 +4,7 @@
 {% block body %}
 <div id = "user">
     <h2>{{to_view.username}}</h2>
-    <p>Followers: <strong>{{followers}}</strong>  Following: <storng>{{following}}</storng></p>
+    <p>Followers: <strong>{{followers}}</strong>  Following: <strong>{{following}}</strong></p>
     <div id = 'follow_button'>
         {% if user.is_authenticated and not self %}
             {% if follows %}

@@ -15,23 +15,21 @@ export function view_posts(user = null, follows = false, page_num = 1){
             if (data.has_previous)
                 document.querySelector('#previous-page').style.display = 'block';
         }
-        
+
         data.results.forEach(post => {
             const element = document.createElement('div');
             element.classList.add('post');
             element.id = `post_${post.post_id}`;
  
             let name_header = `<h3>${post.creator}</h3>`;
-            if (src != 'profile'){
+            if (src != 'profile')
                 name_header = `<a href = "/profile/${post.creator_id}">${name_header}</a>`;
-            };
+            if (post.is_owner)
+                name_header += '<button class="edit_button">Edit</button>';
             let like_type = `like`;
             if (post.is_liked){
                 like_type = 'dislike';
             };
-            if (post.is_owner){
-                name_header += '<span><button class="edit_button">Edit</button></span>';
-            }
             var edit_block = `<div class="edit_block" style="display:none;">
                 <textarea rows="4" cols="50"></textarea>
                 <button class="save_button">Save</button>

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone, dateformat
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import User, Post
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -24,6 +25,7 @@ def profile(request, id):
         'to_view' : user, 'followers' : user.followers.count(), 'following' : user.following.count(),
         'self' : request.user == user, 'follows' : (request.user in user.followers.all())})
 
+@login_required
 def add_follow(request, id):
     #Api route
 
@@ -43,6 +45,7 @@ def add_follow(request, id):
     
     return JsonResponse({'message' : 'followed/unfollowed sucessfully'}, status = 201)
 
+@login_required
 def add_like(request):
     #Api route
 
@@ -59,6 +62,7 @@ def add_like(request):
     post.likes.add(request.user)
     return JsonResponse({'message' : 'added like sucessfully'}, status = 201)
 
+@login_required
 def edit_post(request):
     #Api route 
 
@@ -78,6 +82,7 @@ def edit_post(request):
     post.save()
     return JsonResponse({'message' : 'post edited sucessfully'}, status = 201)
 
+@login_required
 def create_post(request):
     #Api route 
 
